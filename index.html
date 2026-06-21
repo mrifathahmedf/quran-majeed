@@ -113,6 +113,28 @@ header{position:sticky;top:0;z-index:50;backdrop-filter:blur(14px);background:rg
 .modal-card .x{float:left;cursor:pointer;color:var(--muted);font-size:22px}
 .modal-card .big-ar{font-family:'Amiri Quran',serif;font-size:48px;text-align:center;color:var(--gold);margin:6px 0}
 </style>
+<link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Amiri+Quran&family=Scheherazade+New:wght@400;700&family=Noto+Naskh+Arabic:wght@400;700&family=Lateef&family=Harmattan&family=Noto+Nastaliq+Urdu&family=Reem+Kufi&family=Aref+Ruqaa&display=swap" rel="stylesheet"/>
+<style id="userPrefs">
+.w-ar{font-family:var(--qfont,'Amiri Quran',serif)!important;font-size:var(--qsize,30px)!important;line-height:var(--qline,1.9)!important}
+.arabic{font-family:var(--qfont,'Scheherazade New',serif)!important}
+.w-bn,.trans{font-size:var(--trsize,16px)!important}
+.tabs{display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap}
+.tab{flex:1;text-align:center;padding:9px 6px;border-radius:10px;background:var(--bg2);border:1px solid var(--line);cursor:pointer;font-size:13px;white-space:nowrap}
+.tab.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+.pane{display:none}.pane.active{display:block}
+.field{margin:10px 0}.field>label{display:block;font-size:13px;color:var(--accent2);margin-bottom:5px}
+.field select,.field input[type=number],.field input[type=text],#setKey{width:100%;padding:10px;border-radius:10px;border:1px solid var(--line);background:var(--bg2);color:var(--txt)}
+.field input[type=range]{width:100%}
+.row{display:flex;gap:12px}.row .field{flex:1}
+.swatch{display:flex;align-items:center;justify-content:space-between;padding:9px 12px;background:var(--bg2);border-radius:10px;margin:7px 0;font-size:14px}
+.catlbl{margin:14px 0 4px;font-weight:700;color:var(--accent2);font-size:14px}
+.note{font-size:12.5px;background:rgba(255,255,255,.04);border:1px solid var(--line);padding:9px 11px;border-radius:10px;color:var(--muted);line-height:1.6}
+.linkbtn{display:inline-block;margin-top:6px;font-size:12.5px;color:var(--accent2)}
+.btn{padding:10px 14px;border-radius:10px;border:1px solid var(--line);background:var(--bg2);color:var(--txt);cursor:pointer;font-size:14px}
+.btn.primary{background:var(--accent);color:#fff;border-color:var(--accent);font-weight:700}
+.pbtn{background:var(--bg2);border:1px solid var(--line);color:var(--txt);border-radius:10px;padding:8px 10px;cursor:pointer;font-size:15px}
+.nowq{font-size:12.5px;color:var(--accent2);flex:1;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+</style>
 </head>
 <body>
 <div class="bg-orbs"><div class="orb a"></div><div class="orb b"></div><div class="orb c"></div></div>
@@ -150,23 +172,71 @@ header{position:sticky;top:0;z-index:50;backdrop-filter:blur(14px);background:rg
 </div>
 <div id="audiobar">
   <button class="play" id="playBtn">▶</button>
-  <select id="reciter"></select>
-  <label class="chk"><input type="checkbox" id="autoscroll" checked/> অটো-স্ক্রল</label>
-  <label class="chk"><input type="checkbox" id="bnAudio"/> বাংলা অনুবাদ অডিও</label>
-  <button id="stopBtn">⏹ বন্ধ</button>
+  <button class="pbtn" id="prevBtn" title="পূর্ববর্তী আয়াত">⏮</button>
+  <button class="pbtn" id="nextBtn" title="পরবর্তী আয়াত">⏭</button>
+  <button class="pbtn" id="stopBtn" title="বন্ধ">⏹</button>
+  <span id="nowReciter" class="nowq"></span>
+  <button class="pbtn" id="barSet" title="মিডিয়া সেটিংস" onclick="openSettings('media')">⚙️</button>
+  <select id="reciter" style="display:none"></select>
+  <input type="checkbox" id="autoscroll" checked style="display:none"/>
+  <input type="checkbox" id="bnAudio" style="display:none"/>
   <audio id="player"></audio>
 </div>
 <div class="modal" id="setModal"><div class="modal-card">
-  <span class="x" onclick="document.getElementById('setModal').classList.remove('show')">✕</span>
-  <h3 style="color:var(--accent2);margin-bottom:6px">⚙️ AI সেটিংস</h3>
-  <div class="note" style="margin-bottom:14px">দ্রুত ও নির্ভরযোগ্য AI উত্তরের জন্য নিচের যেকোনো একটি <b>ফ্রি</b> API key দিন। key শুধু আপনার এই ডিভাইসেই সংরক্ষিত থাকে (localStorage) — কোথাও পাঠানো হয় না। key না দিলে ফ্রি Pollinations ব্যবহার হবে (ধীর হতে পারে)।</div>
-  <label style="font-size:13px;color:var(--muted)">Google Gemini API key <a href="https://aistudio.google.com/apikey" target="_blank" style="color:var(--accent2)">(ফ্রি নিন)</a></label>
-  <input id="kGemini" class="ask" style="width:100%;margin:4px 0 12px;padding:10px;border-radius:10px;border:1px solid var(--line);background:var(--bg2);color:var(--txt)" placeholder="AIza..."/>
-  <label style="font-size:13px;color:var(--muted)">Groq API key <a href="https://console.groq.com/keys" target="_blank" style="color:var(--accent2)">(ফ্রি নিন)</a></label>
-  <input id="kGroq" style="width:100%;margin:4px 0 12px;padding:10px;border-radius:10px;border:1px solid var(--line);background:var(--bg2);color:var(--txt)" placeholder="gsk_..."/>
-  <label style="font-size:13px;color:var(--muted)">OpenRouter API key <a href="https://openrouter.ai/keys" target="_blank" style="color:var(--accent2)">(ফ্রি নিন)</a></label>
-  <input id="kOr" style="width:100%;margin:4px 0 16px;padding:10px;border-radius:10px;border:1px solid var(--line);background:var(--bg2);color:var(--txt)" placeholder="sk-or-..."/>
-  <button class="btn primary" style="width:100%" onclick="saveSettings()">💾 সংরক্ষণ করুন</button>
+  <span class="x" onclick="closeSettings()">✕</span>
+  <h3 style="color:var(--accent2);margin-bottom:10px">⚙️ সেটিংস</h3>
+  <div class="tabs">
+    <div class="tab active" data-pane="media" onclick="switchTab(this)">🎧 মিডিয়া প্লেয়ার</div>
+    <div class="tab" data-pane="font" onclick="switchTab(this)">✍️ কুরআন ফন্ট</div>
+    <div class="tab" data-pane="ai" onclick="switchTab(this)">🤖 AI মডেল</div>
+  </div>
+
+  <div class="pane active" id="pane-media">
+    <div class="field"><label>🎙 ক্বারী (তেলাওয়াত কণ্ঠ)</label><select id="setReciter"></select></div>
+    <div class="row">
+      <div class="field"><label>⏩ প্লেব্যাক স্পিড: <b id="spdVal">1x</b></label><input type="range" id="setSpeed" min="0.5" max="2" step="0.25" value="1"/></div>
+      <div class="field"><label>🔊 ভলিউম: <b id="volVal">100%</b></label><input type="range" id="setVolume" min="0" max="1" step="0.05" value="1"/></div>
+    </div>
+    <div class="field"><label>🔁 প্রতিটি আয়াত যতবার পড়বে</label><input type="number" id="setRepeat" min="1" max="10" value="1"/></div>
+    <div class="swatch"><label>📜 অটো-স্ক্রল</label><input type="checkbox" id="setAutoscroll" checked/></div>
+    <div class="swatch"><label>🔄 সূরা শেষে আবার শুরু (লুপ)</label><input type="checkbox" id="setLoop"/></div>
+    <div class="swatch"><label>⏭ সূরা শেষে পরের সূরা চালু</label><input type="checkbox" id="setNext" checked/></div>
+    <div class="catlbl">🗣️ বাংলা অনুবাদ অডিও (ভয়েস)</div>
+    <div class="swatch"><label>তেলাওয়াতের পর বাংলা অনুবাদ পড়বে</label><input type="checkbox" id="setBnAudio"/></div>
+    <div class="field"><label>🔉 অনুবাদ ভয়েস</label><select id="setBnVoice"><option value="">স্বয়ংক্রিয় (বাংলা)</option></select></div>
+    <div class="field"><label>⏱ অনুবাদ পড়ার গতি: <b id="ttsVal">1x</b></label><input type="range" id="setTtsRate" min="0.5" max="1.5" step="0.1" value="1"/></div>
+    <div class="note">💡 বাংলা অনুবাদ অডিও আপনার ডিভাইসের টেক্সট-টু-স্পিচ (TTS) দিয়ে শোনানো হয় — সম্পূর্ণ ফ্রি ও অফলাইন।</div>
+  </div>
+
+  <div class="pane" id="pane-font">
+    <div class="field"><label>📖 আরবি লিপি (স্ক্রিপ্ট)</label><select id="setScript"><option value="uthmani">উসমানি (Uthmani)</option><option value="indopak">ইন্দোপাক (IndoPak)</option></select></div>
+    <div class="field"><label>🅰️ আরবি ফন্ট</label><select id="setFont">
+      <option value="'Amiri Quran',serif">Amiri Quran</option>
+      <option value="'Scheherazade New',serif">Scheherazade New</option>
+      <option value="'Noto Naskh Arabic',serif">Noto Naskh Arabic</option>
+      <option value="'Amiri',serif">Amiri</option>
+      <option value="'Lateef',serif">Lateef</option>
+      <option value="'Harmattan',serif">Harmattan</option>
+      <option value="'Noto Nastaliq Urdu',serif">Noto Nastaliq Urdu (ইন্দোপাক)</option>
+      <option value="'Reem Kufi',serif">Reem Kufi</option>
+      <option value="'Aref Ruqaa',serif">Aref Ruqaa</option>
+    </select></div>
+    <div class="field"><label>🔠 আরবি ফন্ট সাইজ: <b id="qsVal">30px</b></label><input type="range" id="setQSize" min="20" max="60" step="2" value="30"/></div>
+    <div class="field"><label>📏 লাইন স্পেসিং: <b id="qlVal">1.9</b></label><input type="range" id="setQLine" min="1.4" max="3" step="0.1" value="1.9"/></div>
+    <div class="field"><label>🔡 অনুবাদ ফন্ট সাইজ: <b id="trVal">16px</b></label><input type="range" id="setTrSize" min="12" max="26" step="1" value="16"/></div>
+    <div style="text-align:center;padding:14px;background:var(--bg2);border-radius:12px;margin-top:8px"><div id="fontPreview" style="font-family:var(--qfont);font-size:var(--qsize);color:var(--accent2)">بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ</div></div>
+  </div>
+
+  <div class="pane" id="pane-ai">
+    <div class="note">✅ <b>শুধু একটি</b> প্রোভাইডার বেছে নিন ও তার একটি API key দিন — তাতেই পুরো অ্যাপ চলবে। একাধিক দরকার নেই (খরচ বাঁচবে)।</div>
+    <div class="field" style="margin-top:14px"><label>🧠 AI প্রোভাইডার নির্বাচন করুন</label><select id="setProvider" onchange="onProviderChange()"></select></div>
+    <div class="field" id="modelField"><label>মডেল</label><select id="setModel"></select></div>
+    <div class="field" id="keyField"><label>🔑 API Key</label><input id="setKey" placeholder="key এখানে দিন..."/><a id="signupLink" class="linkbtn" href="#" target="_blank">→ এই প্রোভাইডারের ফ্রি key নিন</a></div>
+    <button class="btn" style="width:100%;margin-bottom:10px" onclick="searchModels()">🔎 ইন্টারনেটে আরও ফ্রি / ট্রায়াল API মডেল খুঁজুন</button>
+    <div class="note" id="provDesc"></div>
+  </div>
+
+  <button class="btn primary" style="width:100%;margin-top:18px" onclick="saveSettings()">💾 সংরক্ষণ করুন</button>
 </div></div>
 <div class="modal" id="wordModal"><div class="modal-card" id="wordModalCard"></div></div>
 <script>
@@ -174,7 +244,7 @@ const API="https://api.quran.com/api/v4";
 const BN_TRANS=161;
 const TAFSIRS=[{id:164,name:'তাফসীর ইবনে কাসীর'},{id:166,name:'তাফসীর আবু বকর যাকারিয়া'},{id:165,name:'তাফসীর আহসানুল বায়ান'},{id:381,name:'তাফসীর ফাতহুল মাজীদ'}];
 let chapters=[],current=null,verses=[],playIndex=0,playing=false;
-const EVERYAYAH={"Mishary Alafasy":"https://everyayah.com/data/Alafasy_128kbps/","Abdul Basit (Mujawwad)":"https://everyayah.com/data/Abdul_Basit_Mujawwad_128kbps/","Saud Al-Shuraim":"https://everyayah.com/data/Saood_ash-Shuraym_128kbps/","Saad Al-Ghamdi":"https://everyayah.com/data/Ghamadi_40kbps/","Maher Al-Muaiqly":"https://everyayah.com/data/Maher_AlMuaiqly_64kbps/"};
+const EVERYAYAH={"Mishary Alafasy":"https://everyayah.com/data/Alafasy_128kbps/","Abdul Basit (Murattal)":"https://everyayah.com/data/Abdul_Basit_Murattal_192kbps/","Mahmoud Al-Husary":"https://everyayah.com/data/Husary_128kbps/","Mohamed Al-Minshawi":"https://everyayah.com/data/Minshawy_Murattal_128kbps/","Abdurrahman As-Sudais":"https://everyayah.com/data/Abdurrahmaan_As-Sudais_192kbps/","Maher Al-Muaiqly":"https://everyayah.com/data/Maher_AlMuaiqly_64kbps/","Saad Al-Ghamdi":"https://everyayah.com/data/Ghamadi_40kbps/","Abu Bakr Ash-Shatri":"https://everyayah.com/data/Abu_Bakr_Ash-Shaatree_128kbps/","Saud Al-Shuraim":"https://everyayah.com/data/Saood_ash-Shuraym_128kbps/"};
 function pad(n,l){return String(n).padStart(l,'0');}
 function audioUrl(r,s,a){return EVERYAYAH[r]+pad(s,3)+pad(a,3)+".mp3";}
 function stripHtml(s){return (s||'').replace(/<[^>]*>/g,'');}
@@ -326,7 +396,7 @@ async function openSurah(id){
 async function loadVerses(id){
   verses=[];let page=1,more=true;const c=document.getElementById('ayahContainer');c.innerHTML='';
   while(more){
-    const url=API+'/verses/by_chapter/'+id+'?language=bn&words=true&word_fields=text_uthmani&fields=text_uthmani&translations='+BN_TRANS+'&per_page=50&page='+page;
+    const url=API+'/verses/by_chapter/'+id+'?language=bn&words=true&word_fields=text_uthmani,text_indopak&fields=text_uthmani&translations='+BN_TRANS+'&per_page=50&page='+page;
     const r=await fetch(url);const j=await r.json();verses=verses.concat(j.verses);
     more=j.pagination&&j.pagination.next_page;page++;
   }
@@ -334,7 +404,7 @@ async function loadVerses(id){
 }
 function renderAyah(v,i){
   const el=document.createElement('div');el.className='ayah';el.id='ayah-'+i;
-  const words=wordsOf(v).map((w,wi)=>'<div class="word" onclick="showWord('+i+','+wi+')"><span class="w-ar">'+(w.text_uthmani||w.text)+'</span><span class="w-bn">'+(w.translation?stripHtml(w.translation.text):'')+'</span></div>').join('');
+  const words=wordsOf(v).map((w,wi)=>'<div class="word" onclick="showWord('+i+','+wi+')"><span class="w-ar">'+(SCRIPT==='indopak'?(w.text_indopak||w.text_uthmani||w.text):(w.text_uthmani||w.text))+'</span><span class="w-bn">'+(w.translation?stripHtml(w.translation.text):'')+'</span></div>').join('');
   el.innerHTML='<div class="ayah-bar"><div class="ayah-no"><span>'+v.verse_number+'</span></div>'+
     '<div class="ayah-tools"><div class="tool" title="তেলাওয়াত" onclick="playFrom('+i+')">▶</div><div class="tool" title="বুকমার্ক" onclick="this.style.color=\'gold\'">☆</div></div></div>'+
     '<div class="words">'+words+'</div>'+
@@ -386,5 +456,95 @@ document.getElementById('setModal').addEventListener('click',e=>{if(e.target.id=
 
 init();
 </script>
+
+<script>
+/* ===== Quran Majeed — Settings/Audio/AI engine (v2) ===== */
+var SCRIPT = localStorage.getItem('s_script')||'uthmani';
+
+var PROVIDERS=[
+ {id:'pollinations',name:'Pollinations — কোনো key লাগে না',cat:'free',type:'pollinations',models:['openai','mistral','llama'],signup:'',keyless:true},
+ {id:'gemini',name:'Google Gemini',cat:'free',type:'gemini',models:['gemini-2.0-flash','gemini-1.5-flash','gemini-1.5-flash-8b','gemini-1.5-pro'],signup:'https://aistudio.google.com/apikey'},
+ {id:'groq',name:'Groq (অতি দ্রুত)',cat:'free',type:'openai',endpoint:'https://api.groq.com/openai/v1/chat/completions',models:['llama-3.3-70b-versatile','llama-3.1-8b-instant','gemma2-9b-it','mixtral-8x7b-32768'],signup:'https://console.groq.com/keys'},
+ {id:'openrouter',name:'OpenRouter (ফ্রি মডেল)',cat:'free',type:'openai',endpoint:'https://openrouter.ai/api/v1/chat/completions',models:['meta-llama/llama-3.1-8b-instruct:free','google/gemma-2-9b-it:free','mistralai/mistral-7b-instruct:free','qwen/qwen-2-7b-instruct:free','microsoft/phi-3-mini-128k-instruct:free'],signup:'https://openrouter.ai/keys'},
+ {id:'mistral',name:'Mistral AI',cat:'free',type:'openai',endpoint:'https://api.mistral.ai/v1/chat/completions',models:['mistral-small-latest','open-mistral-nemo','mistral-large-latest'],signup:'https://console.mistral.ai/api-keys/'},
+ {id:'cohere',name:'Cohere',cat:'free',type:'openai',endpoint:'https://api.cohere.ai/compatibility/v1/chat/completions',models:['command-r','command-r-plus','command-r7b-12-2024'],signup:'https://dashboard.cohere.com/api-keys'},
+ {id:'cerebras',name:'Cerebras (অতি দ্রুত)',cat:'free',type:'openai',endpoint:'https://api.cerebras.ai/v1/chat/completions',models:['llama3.1-8b','llama-3.3-70b'],signup:'https://cloud.cerebras.ai/'},
+ {id:'github',name:'GitHub Models',cat:'free',type:'openai',endpoint:'https://models.inference.ai.azure.com/chat/completions',models:['gpt-4o-mini','gpt-4o','Llama-3.3-70B-Instruct','Mistral-large'],signup:'https://github.com/marketplace/models'},
+ {id:'together',name:'Together AI',cat:'trial',type:'openai',endpoint:'https://api.together.xyz/v1/chat/completions',models:['meta-llama/Llama-3.3-70B-Instruct-Turbo-Free','meta-llama/Meta-Llama-3.1-8B-Instruct-Turbo'],signup:'https://api.together.ai/'},
+ {id:'fireworks',name:'Fireworks AI',cat:'trial',type:'openai',endpoint:'https://api.fireworks.ai/inference/v1/chat/completions',models:['accounts/fireworks/models/llama-v3p1-8b-instruct','accounts/fireworks/models/llama-v3p3-70b-instruct'],signup:'https://fireworks.ai/'},
+ {id:'deepinfra',name:'DeepInfra',cat:'trial',type:'openai',endpoint:'https://api.deepinfra.com/v1/openai/chat/completions',models:['meta-llama/Meta-Llama-3.1-8B-Instruct','meta-llama/Meta-Llama-3.1-70B-Instruct'],signup:'https://deepinfra.com/'},
+ {id:'or_trial',name:'OpenRouter (ট্রায়াল ক্রেডিট)',cat:'trial',type:'openai',endpoint:'https://openrouter.ai/api/v1/chat/completions',models:['openai/gpt-4o-mini','anthropic/claude-3.5-haiku','google/gemini-flash-1.5'],signup:'https://openrouter.ai/'},
+ {id:'openai',name:'OpenAI (ChatGPT)',cat:'premium',type:'openai',endpoint:'https://api.openai.com/v1/chat/completions',models:['gpt-4o','gpt-4o-mini','gpt-4-turbo','o1-mini'],signup:'https://platform.openai.com/api-keys'},
+ {id:'anthropic',name:'Anthropic Claude',cat:'premium',type:'anthropic',models:['claude-3-5-sonnet-latest','claude-3-5-haiku-latest','claude-3-opus-latest'],signup:'https://console.anthropic.com/settings/keys'},
+ {id:'deepseek',name:'DeepSeek',cat:'premium',type:'openai',endpoint:'https://api.deepseek.com/chat/completions',models:['deepseek-chat','deepseek-reasoner'],signup:'https://platform.deepseek.com/api_keys'},
+ {id:'xai',name:'xAI Grok',cat:'premium',type:'openai',endpoint:'https://api.x.ai/v1/chat/completions',models:['grok-2-latest','grok-beta'],signup:'https://console.x.ai/'},
+ {id:'gemini_pro',name:'Google Gemini (Premium)',cat:'premium',type:'gemini',models:['gemini-2.0-flash-thinking-exp','gemini-exp-1206','gemini-1.5-pro'],signup:'https://aistudio.google.com/apikey'}
+];
+
+async function callGeminiM(key,model,prompt){
+  const r=await fetch('https://generativelanguage.googleapis.com/v1beta/models/'+(model||'gemini-1.5-flash')+':generateContent?key='+key,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({contents:[{parts:[{text:AI_SYS+"\n\n"+prompt}]}]})});
+  if(!r.ok)throw new Error('gemini '+r.status);const j=await r.json();return j.candidates[0].content.parts[0].text;
+}
+async function callAnthropic(key,model,prompt){
+  const r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json','x-api-key':key,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},body:JSON.stringify({model:model||'claude-3-5-haiku-latest',max_tokens:1800,system:AI_SYS,messages:[{role:'user',content:prompt}]})});
+  if(!r.ok)throw new Error('claude '+r.status);const j=await r.json();return j.content[0].text;
+}
+async function callOpenAICompat(endpoint,key,model,prompt){
+  const r=await fetch(endpoint,{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+key},body:JSON.stringify({model:model,messages:[{role:'system',content:AI_SYS},{role:'user',content:prompt}],temperature:0.4})});
+  if(!r.ok)throw new Error('llm '+r.status);const j=await r.json();return j.choices[0].message.content;
+}
+async function doAi(prompt){
+  const prov=localStorage.getItem('s_provider')||'pollinations';
+  const key=(localStorage.getItem('s_key')||'').trim();
+  const model=localStorage.getItem('s_model')||'';
+  const P=PROVIDERS.find(p=>p.id===prov);
+  try{
+    if(P && P.type!=='pollinations'){
+      if(!key && !P.keyless) throw new Error('no key');
+      if(P.type==='gemini') return await callGeminiM(key,model,prompt);
+      if(P.type==='anthropic') return await callAnthropic(key,model,prompt);
+      if(P.type==='openai') return await callOpenAICompat(P.endpoint,key,model,prompt);
+    }
+  }catch(e){ try{return await callPollinations(prompt);}catch(_){ throw e; } }
+  return await callPollinations(prompt);
+}
+function aiGenerate(prompt){const p=aiQueue.then(()=>doAi(prompt));aiQueue=p.catch(()=>{});return p;}
+
+/* ---------- Settings UI ---------- */
+function switchTab(t){document.querySelectorAll('#setModal .tab').forEach(x=>x.classList.remove('active'));t.classList.add('active');document.querySelectorAll('#setModal .pane').forEach(p=>p.classList.remove('active'));var pane=document.getElementById('pane-'+t.dataset.pane);if(pane)pane.classList.add('active');}
+function closeSettings(){document.getElementById('setModal').classList.remove('show');}
+function searchModels(){window.open('https://www.google.com/search?q=free+LLM+chat+API+key+no+credit+card+2025','_blank');}
+function fillProviders(){var sel=document.getElementById('setProvider');if(sel.options.length)return;var cats={free:'🆓 ফ্রি (key বিনামূল্যে)',trial:'🎁 ট্রায়াল (ফ্রি ক্রেডিট)',premium:'💎 প্রিমিয়াম (পেইড)'};for(var ck in cats){var og=document.createElement('optgroup');og.label=cats[ck];PROVIDERS.filter(function(p){return p.cat===ck;}).forEach(function(p){var o=document.createElement('option');o.value=p.id;o.textContent=p.name;og.appendChild(o);});sel.appendChild(og);}}
+function onProviderChange(){var id=document.getElementById('setProvider').value;var P=PROVIDERS.find(function(p){return p.id===id;});if(!P)return;var ms=document.getElementById('setModel');ms.innerHTML='';(P.models||[]).forEach(function(m){var o=document.createElement('option');o.value=m;o.textContent=m;ms.appendChild(o);});var kf=document.getElementById('keyField'),mf=document.getElementById('modelField');if(P.keyless){kf.style.display='none';mf.style.display=(P.models.length>1)?'block':'none';}else{kf.style.display='block';mf.style.display='block';}var lk=document.getElementById('signupLink');if(P.signup){lk.style.display='inline-block';lk.href=P.signup;lk.textContent='→ এই প্রোভাইডারের key নিন';}else{lk.style.display='none';}document.getElementById('provDesc').textContent=P.keyless?'কোনো key লাগবে না — সরাসরি কাজ করবে (মাঝে মাঝে একটু ধীর)।':('শুধু এই একটি প্রোভাইডারের key দিলেই পুরো অ্যাপ চলবে। '+(P.cat==='premium'?'এটি পেইড সার্ভিস।':P.cat==='trial'?'সাইন-আপে ফ্রি ক্রেডিট পাবেন।':'key সম্পূর্ণ ফ্রি।'));}
+function fillVoices(){var sel=document.getElementById('setBnVoice');if(!sel)return;var cur=localStorage.getItem('s_bnvoice')||'';var vs=(window.speechSynthesis&&speechSynthesis.getVoices())||[];sel.innerHTML='<option value="">স্বয়ংক্রিয় (বাংলা)</option>';vs.forEach(function(v){var o=document.createElement('option');o.value=v.name;o.textContent=v.name+' ('+v.lang+')';if(v.name===cur)o.selected=true;sel.appendChild(o);});}
+if('speechSynthesis' in window){try{speechSynthesis.onvoiceschanged=fillVoices;}catch(e){}}
+function fillReciters(){var s=document.getElementById('setReciter');if(s.options.length)return;Object.keys(EVERYAYAH).forEach(function(n){var o=document.createElement('option');o.value=n;o.textContent=n;s.appendChild(o);});}
+function _g(id){return document.getElementById(id);}
+function bindRanges(){function b(id,el,fn){var e=_g(id);e.oninput=function(){_g(el).textContent=fn(e.value);if(id==='setFont'||id==='setQSize')livePreview();};}b('setSpeed','spdVal',function(v){return v+'x';});b('setVolume','volVal',function(v){return Math.round(v*100)+'%';});b('setTtsRate','ttsVal',function(v){return v+'x';});b('setQSize','qsVal',function(v){return v+'px';});b('setQLine','qlVal',function(v){return v;});b('setTrSize','trVal',function(v){return v+'px';});_g('setFont').onchange=livePreview;_g('setQSize').addEventListener('input',livePreview);}
+function livePreview(){var fp=_g('fontPreview');if(!fp)return;fp.style.fontFamily=_g('setFont').value;fp.style.fontSize=_g('setQSize').value+'px';}
+function openSettings(tab){fillProviders();fillVoices();fillReciters();_g('setProvider').value=localStorage.getItem('s_provider')||'pollinations';onProviderChange();if(localStorage.getItem('s_model'))_g('setModel').value=localStorage.getItem('s_model');_g('setKey').value=localStorage.getItem('s_key')||'';_g('setReciter').value=localStorage.getItem('s_reciter')||Object.keys(EVERYAYAH)[0];_g('setSpeed').value=localStorage.getItem('s_speed')||'1';_g('spdVal').textContent=(localStorage.getItem('s_speed')||'1')+'x';_g('setVolume').value=localStorage.getItem('s_volume')||'1';_g('volVal').textContent=Math.round((localStorage.getItem('s_volume')||1)*100)+'%';_g('setRepeat').value=localStorage.getItem('s_repeat')||'1';_g('setAutoscroll').checked=localStorage.getItem('s_autoscroll')!=='0';_g('setLoop').checked=localStorage.getItem('s_loop')==='1';_g('setNext').checked=localStorage.getItem('s_next')!=='0';_g('setBnAudio').checked=localStorage.getItem('s_bnaudio')==='1';_g('setTtsRate').value=localStorage.getItem('s_ttsrate')||'1';_g('ttsVal').textContent=(localStorage.getItem('s_ttsrate')||'1')+'x';_g('setScript').value=localStorage.getItem('s_script')||'uthmani';_g('setFont').value=localStorage.getItem('s_font')||"'Amiri Quran',serif";_g('setQSize').value=localStorage.getItem('s_qsize')||'30';_g('qsVal').textContent=(localStorage.getItem('s_qsize')||'30')+'px';_g('setQLine').value=localStorage.getItem('s_qline')||'1.9';_g('qlVal').textContent=(localStorage.getItem('s_qline')||'1.9');_g('setTrSize').value=localStorage.getItem('s_trsize')||'16';_g('trVal').textContent=(localStorage.getItem('s_trsize')||'16')+'px';bindRanges();livePreview();_g('setModal').classList.add('show');if(tab&&typeof tab==='string'){var tb=document.querySelector('#setModal .tab[data-pane="'+tab+'"]');if(tb)switchTab(tb);}}
+function saveSettings(){function S(k,v){localStorage.setItem(k,v);}S('s_provider',_g('setProvider').value);S('s_model',_g('setModel').value||'');S('s_key',_g('setKey').value.trim());S('s_reciter',_g('setReciter').value);S('s_speed',_g('setSpeed').value);S('s_volume',_g('setVolume').value);S('s_repeat',_g('setRepeat').value);S('s_autoscroll',_g('setAutoscroll').checked?'1':'0');S('s_loop',_g('setLoop').checked?'1':'0');S('s_next',_g('setNext').checked?'1':'0');S('s_bnaudio',_g('setBnAudio').checked?'1':'0');S('s_bnvoice',_g('setBnVoice').value);S('s_ttsrate',_g('setTtsRate').value);S('s_script',_g('setScript').value);S('s_font',_g('setFont').value);S('s_qsize',_g('setQSize').value);S('s_qline',_g('setQLine').value);S('s_trsize',_g('setTrSize').value);applySettings();closeSettings();if(typeof current!=='undefined'&&current&&current.id&&typeof loadVerses==='function'){loadVerses(current.id);}}
+function applySettings(){var rt=document.documentElement.style;rt.setProperty('--qfont',localStorage.getItem('s_font')||"'Amiri Quran',serif");rt.setProperty('--qsize',(localStorage.getItem('s_qsize')||'30')+'px');rt.setProperty('--qline',(localStorage.getItem('s_qline')||'1.9'));rt.setProperty('--trsize',(localStorage.getItem('s_trsize')||'16')+'px');SCRIPT=localStorage.getItem('s_script')||'uthmani';var rs=_g('reciter');if(rs){if(!rs.options.length){Object.keys(EVERYAYAH).forEach(function(n){var o=document.createElement('option');o.value=n;o.textContent=n;rs.appendChild(o);});}rs.value=localStorage.getItem('s_reciter')||Object.keys(EVERYAYAH)[0];}var as=_g('autoscroll');if(as)as.checked=localStorage.getItem('s_autoscroll')!=='0';var ba=_g('bnAudio');if(ba)ba.checked=localStorage.getItem('s_bnaudio')==='1';}
+
+/* ---------- Audio engine ---------- */
+var repeatLeft=0;
+function curReciter(){var s=_g('reciter');return (s&&s.value)||localStorage.getItem('s_reciter')||Object.keys(EVERYAYAH)[0];}
+function applyAudioPrefs(){player.playbackRate=parseFloat(localStorage.getItem('s_speed')||'1');player.volume=parseFloat(localStorage.getItem('s_volume')||'1');}
+function playFrom(i){playIndex=i;repeatLeft=parseInt(localStorage.getItem('s_repeat')||'1')-1;playCurrent();}
+function playCurrent(){if(playIndex>=verses.length){onSurahEnd();return;}var r=curReciter();player.src=audioUrl(r,current.id,verses[playIndex].verse_number);applyAudioPrefs();player.play();playing=true;_g('playBtn').textContent='⏸';var nr=_g('nowReciter');if(nr)nr.textContent='🎙 '+r+' • আয়াত '+verses[playIndex].verse_number;document.querySelectorAll('.ayah.active').forEach(function(e){e.classList.remove('active');});var cur=_g('ayah-'+playIndex);if(cur){cur.classList.add('active');if(_g('autoscroll').checked)cur.scrollIntoView({behavior:'smooth',block:'center'});}}
+function speakBangla(text){return new Promise(function(res){try{if(!('speechSynthesis' in window)){return res();}var u=new SpeechSynthesisUtterance(String(text).replace(/<[^>]+>/g,'').trim());var vn=localStorage.getItem('s_bnvoice')||'';var vs=speechSynthesis.getVoices();var v=vs.find(function(x){return x.name===vn;})||vs.find(function(x){return /bn|bangla/i.test(x.lang+x.name);});if(v)u.voice=v;u.lang=(v&&v.lang)||'bn-BD';u.rate=parseFloat(localStorage.getItem('s_ttsrate')||'1');u.onend=res;u.onerror=res;speechSynthesis.cancel();speechSynthesis.speak(u);}catch(e){res();}});}
+async function afterAyah(){if(_g('bnAudio').checked){try{await speakBangla(transOf(verses[playIndex]));}catch(e){}}if(repeatLeft>0){repeatLeft--;playCurrent();return;}playIndex++;repeatLeft=parseInt(localStorage.getItem('s_repeat')||'1')-1;if(playIndex<verses.length){playCurrent();}else{onSurahEnd();}}
+function onSurahEnd(){if(localStorage.getItem('s_loop')==='1'){playFrom(0);return;}if(localStorage.getItem('s_next')!=='0'&&current.id<114&&typeof openSurah==='function'){Promise.resolve(openSurah(current.id+1)).then(function(){setTimeout(function(){playFrom(0);},1200);});return;}stopPlay();}
+function stopPlay(){player.pause();playing=false;try{speechSynthesis.cancel();}catch(e){}_g('playBtn').textContent='▶';document.querySelectorAll('.ayah.active').forEach(function(e){e.classList.remove('active');});}
+player.onended=function(){if(playing)afterAyah();};
+_g('playBtn').onclick=function(){if(playing){player.pause();playing=false;this.textContent='▶';}else{if(player.src){applyAudioPrefs();player.play();playing=true;this.textContent='⏸';}else{playFrom(0);}}};
+_g('stopBtn').onclick=function(){stopPlay();};
+(function(){var pv=_g('prevBtn');if(pv)pv.onclick=function(){if(playIndex>0)playFrom(playIndex-1);};var nx=_g('nextBtn');if(nx)nx.onclick=function(){if(playIndex<verses.length-1)playFrom(playIndex+1);};})();
+
+window.addEventListener('load',function(){try{fillVoices();applySettings();}catch(e){}});
+try{applySettings();}catch(e){}
+</script>
+
+
 </body>
 </html>
